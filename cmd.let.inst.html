@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>CMD Visual Simulator</title>
+
+  <style>
+    body {
+      background-color: #111;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .cmd {
+      width: 80vw;
+      height: 80vh;
+      background-color: #000;
+      color: #c0c0c0;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      border: 2px solid #222;
+    }
+
+    .cmd pre {
+      margin: 0;
+      line-height: 1.35;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+
+    .message {
+      margin-top: 12px;
+      color: #00ff90;
+    }
+
+    .title {
+      color: #00e1ff;
+      font-weight: bold;
+    }
+
+    .simulation {
+      color: #888;
+      font-style: italic;
+    }
+
+    button {
+      background: #111;
+      border: 1px solid #333;
+      color: #c0c0c0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #00e1ff;
+      color: #000;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="cmd" id="cmd">
+<pre>
+====================================================
+ TARGET ACCOUNT : math.jp.__
+ PLATFORM       : Instagram
+ MODULE         : Screen Activity Correlation
+====================================================
+
+[+] Active session detected
+[+] Behavioral pattern engine loaded
+[+] Visual correlation enabled
+
+----------------------------------------------------
+ LAST CAPTURE EVENT
+____________________________________________________
+
+• Source Profile.....: doll.dixs
+• Media Type.........: Story Highlights
+• Capture Action.....: Screen capture inferred
+• Capture Count......: 4
+• Capture Date.......: 12/12/2025
+• Time Window........: 01:21 - 01:23
+• Session Status.....: Continuous
+• Confidence Level...: HIGH
+
+----------------------------------------------------
+ CORRELATION DETAILS
+----------------------------------------------------
+• Repeated highlight navigation detected
+• Sequential frame persistence confirmed
+• Short-interval capture pattern identified
+• Classified as intentional capture behavior
+
+----------------------------------------------------
+ LAST CAPTURE EVENT
+____________________________________________________
+
+⚠ UPDATE IN 3H.
+
+Source profiles:
+- Target: math.jp.__
+- Destination: doll.dixs
+
+Last activity:
+
+[18/12/2025]
+
+• Evento 01
+  - Tipo.............: Mensagem enviada
+  - De...............: math.jp.__
+  - Para.............: doll.dixs
+  - Horário..........: 13:48
+  - Conteúdo.........: "Iae mn"
+  - Status...........: Enviada
+  - Classificação....: Interação recente
+
+• Evento 02
+  - Tipo.............: Mensagem enviada
+  - De...............: math.jp.__
+  - Para.............: doll.dixs
+  - Horário..........: 13:48
+  - Conteúdo.........: "Vou da um passeio de bote la na ilha do amor hj"
+  - Status...........: Enviada
+  - Classificação....: Follow-up / Interação contínua
+
+• Evento 03
+  - Tipo.............: Mensagem enviada
+  - De...............: math.jp.__
+  - Para.............: doll.dixs
+  - Horário..........: 13:51
+  - Conteúdo.........: "Vou fica pertim dai mn"
+  - Status...........: Enviada
+  - Classificação....: Follow-up / Interação contínua
+
+• Evento 04
+  - Tipo.............: Mensagem enviada
+  - De...............: math.jp.__
+  - Para.............: doll.dixs
+  - Horário..........: 13:51
+  - Conteúdo.........: "KKKKKKKKK"
+  - Status...........: Enviada
+  - Classificação....: Follow-up / Interação contínua
+
+⚠ UPDATE IN 3H.
+
+ATTRIB      Displays or changes file attributes.
+BREAK       Sets or clears extended CTRL+C checking.
+BCDEDIT     Sets properties in boot database to control boot loading.
+CACLS       Displays or modifies access control lists (ACLs) of files.
+CALL        Calls one batch program from another.
+CD          Displays the name of or changes the current directory.
+CHCP        Displays or sets the active code page number.
+CHDIR       Displays the name of or changes the current directory.
+CHKDSK      Checks a disk and displays a status report.
+CLS         Clears the screen.
+COLOR       Sets the default console foreground and background colors.
+COMP        Compares the contents of two files or sets of files.
+COMPACT     Displays or alters the compression of files on NTFS partitions.
+CONVERT     Converts FAT volumes to NTFS.
+COPY        Copies one or more files to another location.
+DATE        Displays or sets the date.
+DEL         Deletes one or more files.
+DIR         Displays a list of files and subdirectories in a directory.
+DISKPART    Displays or configures Disk Partition properties.
+DOSKEY      Edits command lines, recalls Windows commands.
+
+----------------------------------------------------
+ACTIVITY TARGET EVENT
+____________________________________________________
+
+</pre>
+</div>
+
+<div style="display:flex; gap:10px; margin-top:10px;">
+  <button onclick="setScroll(false)">Auto scroll OFF</button>
+  <button onclick="setScroll(true)">Auto scroll ON</button>
+</div>
+
+<script>
+  let autoScroll = true;
+
+  function setScroll(state) {
+    autoScroll = state;
+  }
+
+  const cmd = document.getElementById("cmd");
+
+  const activityMap = {
+    fy: {
+      title: "For You Feed Activity Detected",
+      status: "Browsing personalized feed",
+      canLike: false
+    },
+    story: {
+      title: "Recent Stories Activity Detected",
+      status: "Viewing stories",
+      canLike: true
+    },
+    dm: {
+      title: "Direct Message Interaction Detected",
+      status: "Viewing DM conversation",
+      canLike: false
+    },
+    reels: {
+      title: "Reels Consumption Pattern Detected",
+      status: "Watching reels",
+      canLike: false
+    },
+    post: {
+      title: "Post Engagement Activity Detected",
+      status: "Viewing profile posts",
+      canLike: true
+    }
+  };
+
+  const likeTargets = [
+    "thisisspinelli",
+    "cos.sc4rlet",
+    "cacizza",
+    "buarque__9",
+    "ey.els_",
+    "ealobinh4",
+    "darkh1l"
+  ];
+
+  let interval = null;
+  let offlineShown = false;
+  let justCameOnline = false;
+  let fyActiveUntil = 0;
+
+  function getCurrentActivity() {
+    return localStorage.getItem("activityMode") || "story";
+  }
+
+  function isOnline() {
+    return localStorage.getItem("connectionStatus") !== "offline";
+  }
+
+  function chance(percent) {
+    return Math.random() * 100 < percent;
+  }
+
+  function randomLikeTarget() {
+    return likeTargets[Math.floor(Math.random() * likeTargets.length)];
+  }
+
+  function showOfflineMessage() {
+    if (offlineShown) return;
+
+    const block = document.createElement("pre");
+    block.classList.add("message");
+    block.style.color = "#ff5555";
+
+    block.innerHTML = `
+[${new Date().toLocaleTimeString()}] ACCOUNT OFFLINE
+Account.............: math.jp.__
+Platform............: Instagram
+Status..............: Disconnected
+Monitoring..........: Paused
+`;
+
+    cmd.appendChild(block);
+    if (autoScroll) {
+    cmd.scrollTop = cmd.scrollHeight;
+    }
+
+    offlineShown = true;
+  }
+
+  function addMessage() {
+    if (!isOnline()) {
+      showOfflineMessage();
+      justCameOnline = true;
+      return;
+    }
+
+    if (justCameOnline) {
+      fyActiveUntil = Date.now() + randomTime(4000, 9000);
+      justCameOnline = false;
+    }
+
+    offlineShown = false;
+
+    let mode;
+
+    // Durante FY inicial
+    if (Date.now() < fyActiveUntil) {
+      mode = "fy";
+    } else {
+      // Automático com prioridade para stories após FY
+      if (localStorage.getItem("autoMode") === "true") {
+        mode = chance(50) ? "story" : getCurrentActivity();
+      } else {
+        mode = getCurrentActivity();
+      }
+    }
+
+    const activity = activityMap[mode];
+    const timestamp = new Date().toLocaleTimeString();
+    const isAuto = localStorage.getItem("autoMode") === "true";
+
+    const hasLike = activity.canLike && chance(10);
+    const likeTarget = hasLike ? randomLikeTarget() : null;
+
+    const likeBlock = hasLike
+      ? `
+----------------------------------------------------
+ENGAGEMENT EVENT
+____________________________________________________
+
+• Action.............: Like detected
+• Target Media.......: ${mode.toUpperCase()}
+• Source Account.....: math.jp.__
+• Target Account.....: ${likeTarget}
+• Confidence Level...: MEDIUM
+`
+      : "";
+
+    const messageBlock = document.createElement("pre");
+    messageBlock.classList.add("message");
+
+    messageBlock.innerHTML = `
+[${timestamp}] <span class="title">${activity.title}</span>
+Account: math.jp.__
+Status: ${activity.status}
+Mode: ${isAuto ? "AUTOMATIC" : "AUTOMATIC"}
+
+${likeBlock}
+<span class="simulation">⚠ ------</span>
+`;
+
+    cmd.appendChild(messageBlock);
+
+if (autoScroll) {
+  cmd.scrollTop = cmd.scrollHeight;
+}
+
+  }
+
+  function randomTime(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function start() {
+    if (interval) clearInterval(interval);
+    interval = setInterval(addMessage, 12000);
+  }
+
+  start();
+</script>
+
+</body>
+</html>

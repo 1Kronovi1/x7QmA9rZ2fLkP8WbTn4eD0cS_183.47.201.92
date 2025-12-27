@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Activity Control Panel</title>
+
+  <style>
+    body {
+      background: #0b0b0b;
+      color: #c0c0c0;
+      font-family: Consolas, "Courier New", monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .panel {
+      background: #000;
+      border: 2px solid #222;
+      padding: 30px;
+      width: 420px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #00e1ff;
+    }
+
+    button {
+      width: 100%;
+      background: #111;
+      border: 1px solid #333;
+      color: #c0c0c0;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 12px;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #00e1ff;
+      color: #000;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #00ff90;
+    }
+  </style>
+</head>
+<body>
+
+<div class="panel">
+  <h1>ACTIVITY MODULE SELECTOR</h1>
+
+  <button onclick="setMode('story')">STORY</button>
+  <button onclick="setMode('dm')">DM</button>
+  <button onclick="setMode('reels')">REELS</button>
+  <button onclick="setMode('post')">POST</button>
+  <button onclick="setAutoMode()">AUTOMATIC</button>
+  <button onclick="setOnline()">ONLINE</button>
+  <button onclick="setOffline()">OFFLINE</button>
+
+
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+  const status = document.getElementById("status");
+  let autoInterval = null;
+
+  const modes = ["story", "dm", "reels", "post"];
+
+  function setMode(mode) {
+    clearAuto();
+    localStorage.setItem("activityMode", mode);
+    localStorage.setItem("autoMode", "false");
+    localStorage.setItem("connectionStatus", "online");
+    status.textContent = `Mode: ${mode.toUpperCase()} | ONLINE`;
+  }
+
+  function setAutoMode() {
+    localStorage.setItem("autoMode", "true");
+    localStorage.setItem("connectionStatus", "online");
+    status.textContent = "Mode: AUTOMATIC | ONLINE";
+    runAutoCycle();
+  }
+
+  function setOffline() {
+    clearAuto();
+    localStorage.setItem("connectionStatus", "offline");
+    status.textContent = "STATUS: OFFLINE";
+  }
+
+  function setOnline() {
+    localStorage.setItem("connectionStatus", "online");
+    status.textContent = "STATUS: ONLINE";
+  }
+
+  function runAutoCycle() {
+    clearAuto();
+
+    function cycle() {
+      if (localStorage.getItem("connectionStatus") === "offline") return;
+
+      const randomMode = modes[Math.floor(Math.random() * modes.length)];
+      localStorage.setItem("activityMode", randomMode);
+
+      autoInterval = setTimeout(cycle, randomTime());
+    }
+
+    cycle();
+  }
+
+  function randomTime() {
+    return Math.floor(Math.random() * (120000 - 30000 + 1)) + 30000;
+  }
+
+  function clearAuto() {
+    if (autoInterval) {
+      clearTimeout(autoInterval);
+      autoInterval = null;
+    }
+  }
+
+  // Estado inicial
+  const connection = localStorage.getItem("connectionStatus") || "online";
+  const isAuto = localStorage.getItem("autoMode") === "true";
+  const current = localStorage.getItem("activityMode") || "story";
+
+  if (connection === "offline") {
+    status.textContent = "STATUS: OFFLINE";
+  } else if (isAuto) {
+    status.textContent = "Mode: AUTOMATIC | ONLINE";
+    runAutoCycle();
+  } else {
+    status.textContent = `Mode: ${current.toUpperCase()} | ONLINE`;
+  }
+</script>
+
+</body>
+</html>
